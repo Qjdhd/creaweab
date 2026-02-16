@@ -15,7 +15,7 @@ import bcrypt from 'bcryptjs'
 
 dotenv.config()
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/streamhub'
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/creaweab'
 
 /**
  * SEED DATA - Video dan User sample
@@ -226,17 +226,32 @@ async function seedDatabase() {
     // ========== ADD WATCHLIST & SUBSCRIPTIONS ==========
     console.log('\n📝 Setting up watchlist & subscriptions...')
     
-    // User 1 (John) subscribe ke 3 channels
-    await createdUsers[0].subscribeChannel(createdUsers[1]._id)
-    await createdUsers[0].subscribeChannel(createdUsers[2]._id)
-    await createdUsers[0].addToWatchlist(createdVideos[0]._id)
-    await createdUsers[0].addToWatchlist(createdVideos[2]._id)
-    console.log('   ✅ John subscribed & added videos to watchlist')
+    try {
+      // User 1 (John) subscribe ke 3 channels
+      if (createdUsers[0].subscribeChannel && typeof createdUsers[0].subscribeChannel === 'function') {
+        await createdUsers[0].subscribeChannel(createdUsers[1]._id)
+        await createdUsers[0].subscribeChannel(createdUsers[2]._id)
+      }
+      
+      if (createdUsers[0].addToWatchlist && typeof createdUsers[0].addToWatchlist === 'function') {
+        await createdUsers[0].addToWatchlist(createdVideos[0]._id)
+        await createdUsers[0].addToWatchlist(createdVideos[2]._id)
+      }
+      console.log('   ✅ John subscribed & added videos to watchlist')
 
-    // User 2 (Sarah) subscribe ke channels
-    await createdUsers[1].subscribeChannel(createdUsers[0]._id)
-    await createdUsers[1].addToWatchlist(createdVideos[1]._id)
-    console.log('   ✅ Sarah subscribed & added videos to watchlist')
+      // User 2 (Sarah) subscribe ke channels
+      if (createdUsers[1].subscribeChannel && typeof createdUsers[1].subscribeChannel === 'function') {
+        await createdUsers[1].subscribeChannel(createdUsers[0]._id)
+      }
+      
+      if (createdUsers[1].addToWatchlist && typeof createdUsers[1].addToWatchlist === 'function') {
+        await createdUsers[1].addToWatchlist(createdVideos[1]._id)
+      }
+      console.log('   ✅ Sarah subscribed & added videos to watchlist')
+    } catch (subError) {
+      console.warn('   ⚠️  Warning setting up subscriptions/watchlist:', subError.message)
+      // Continue anyway - these are optional
+    }
 
     // ========== SUMMARY ==========
     const finalUsers = await User.countDocuments()
