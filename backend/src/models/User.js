@@ -1,4 +1,4 @@
-// ========================================================================
+\// ========================================================================
 // FILE: User.js (Mongoose Model)
 // FUNGSI: Define struktur dan validasi data User di MongoDB
 // PENJELASAN:
@@ -79,7 +79,7 @@ const userSchema = new mongoose.Schema(
 
     subscribedChannels: {
       type: [mongoose.Schema.Types.ObjectId],
-      ref: 'Video',
+      ref: 'User',
       default: []
     },
 
