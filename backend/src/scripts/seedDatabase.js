@@ -197,9 +197,14 @@ async function seedDatabase() {
     const createdUsers = []
     
     for (const userData of seedUsers) {
-      const user = await User.create(userData)
-      createdUsers.push(user)
-      console.log(`   ✅ Created user: ${user.email}`)
+      try {
+        const user = await User.create(userData)
+        createdUsers.push(user)
+        console.log(`   ✅ Created user: ${user.email}`)
+      } catch (userError) {
+        console.error(`   ❌ Error creating user ${userData.email}:`, userError.message)
+        throw userError
+      }
     }
 
     // ========== CREATE VIDEOS ==========
@@ -207,20 +212,25 @@ async function seedDatabase() {
     const createdVideos = []
     
     for (let i = 0; i < seedVideos.length; i++) {
-      const videoData = seedVideos[i]
-      // Assign random creator (user)
-      const creator = createdUsers[Math.floor(Math.random() * (createdUsers.length - 1))]
-      
-      const video = await Video.create({
-        ...videoData,
-        uploadedBy: creator._id,
-        views: Math.floor(Math.random() * 300000),
-        likes: Math.floor(Math.random() * 10000),
-        rating: (Math.random() * 5).toFixed(1)
-      })
-      
-      createdVideos.push(video)
-      console.log(`   ✅ Created video: "${video.title}"`)
+      try {
+        const videoData = seedVideos[i]
+        // Assign random creator (user)
+        const creator = createdUsers[Math.floor(Math.random() * (createdUsers.length - 1))]
+        
+        const video = await Video.create({
+          ...videoData,
+          uploadedBy: creator._id,
+          views: Math.floor(Math.random() * 300000),
+          likes: Math.floor(Math.random() * 10000),
+          rating: parseFloat((Math.random() * 5).toFixed(1))
+        })
+        
+        createdVideos.push(video)
+        console.log(`   ✅ Created video: "${video.title}"`)
+      } catch (videoError) {
+        console.error(`   ❌ Error creating video ${seedVideos[i].title}:`, videoError.message)
+        throw videoError
+      }
     }
 
     // ========== ADD WATCHLIST & SUBSCRIPTIONS ==========
@@ -291,9 +301,11 @@ async function seedDatabase() {
 ❌ Seeding Error:
 ${error.message}
 
+${error.stack}
+
 Troubleshooting:
 1. Pastikan MongoDB sudah running
-   - Windows: mongod di command prompt
+   - Windows: buka Command Prompt, ketik: mongod
    - Mac: brew services start mongodb-community
    
 2. Cek MONGODB_URI di .env:
@@ -301,6 +313,8 @@ Troubleshooting:
    
 3. Pastikan node_modules sudah install:
    npm install
+   
+4. Cek apakah ada error di email format atau validation lainnya
     `)
     process.exit(1)
   }
