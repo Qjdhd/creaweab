@@ -1,4 +1,4 @@
-\// ========================================================================
+// ========================================================================
 // FILE: User.js (Mongoose Model)
 // FUNGSI: Define struktur dan validasi data User di MongoDB
 // PENJELASAN:
