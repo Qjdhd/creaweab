@@ -200,26 +200,36 @@ async function seedDatabase() {
       try {
         // Sanitize user data - hanya pass field yang defined di schema
         const sanitizedData = {
-          name: userData.name,
-          email: userData.email,
-          password: userData.password,
-          avatar: userData.avatar || '👤',
-          bio: userData.bio || '',
-          isVerified: userData.isVerified || false,
-          isAdmin: userData.isAdmin || false,
+          name: String(userData.name),
+          email: String(userData.email).toLowerCase(),
+          password: String(userData.password),
+          avatar: String(userData.avatar || '👤'),
+          bio: String(userData.bio || ''),
+          isVerified: Boolean(userData.isVerified),
+          isAdmin: Boolean(userData.isAdmin),
           isActive: true
         }
         
-        console.log(`   Creating user: ${sanitizedData.email}`)
+        console.log(`   📝 Preparing user: ${sanitizedData.email}`)
+        console.log(`      - name: ${sanitizedData.name}`)
+        console.log(`      - email: ${sanitizedData.email}`)
+        console.log(`      - avatar: ${sanitizedData.avatar}`)
+        console.log(`      - isVerified: ${sanitizedData.isVerified}`)
+        
         const user = await User.create(sanitizedData)
         createdUsers.push(user)
         console.log(`   ✅ Created user: ${user.email}`)
       } catch (userError) {
-        console.error(`   ❌ Error creating user ${userData.email}:`)
+        console.error(`\n   ❌ Error creating user ${userData.email}:`)
+        console.error(`      Name: ${userError.name}`)
         console.error(`      Message: ${userError.message}`)
+        console.error(`      Code: ${userError.code}`)
         if (userError.errors) {
-          console.error(`      Validation errors:`, userError.errors)
+          for (const [field, err] of Object.entries(userError.errors)) {
+            console.error(`      Field "${field}": ${err.message}`)
+          }
         }
+        console.error(`      Full Error:`, userError)
         throw userError
       }
     }
