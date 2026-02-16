@@ -98,15 +98,18 @@ const userSchema = new mongoose.Schema(
     },
 
     // Watch history (untuk resume watching)
-    watchHistory: {
-      type: [
-        {
-          videoId: mongoose.Schema.Types.ObjectId,
-          watchedAt: { type: Date, default: Date.now }
+    watchHistory: [
+      {
+        videoId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Video'
+        },
+        watchedAt: {
+          type: Date,
+          default: Date.now
         }
-      ],
-      default: []
-    },
+      }
+    ],
 
     // ========== STATUS ==========
     isVerified: {
@@ -358,4 +361,3 @@ userSchema.methods.toJSON = function () {
 const User = mongoose.model('User', userSchema)
 
 export default User
-
