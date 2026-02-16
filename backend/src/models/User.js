@@ -315,7 +315,9 @@ userSchema.pre('save', async function (next) {
 
   try {
     // Generate salt (round 10 = balanced security & speed)
-    const salt = await bcrypt.genSalt(process.env.BCRYPT_ROUNDS || 10)
+    // PENTING: Convert BCRYPT_ROUNDS ke number karena process.env adalah string
+    const rounds = parseInt(process.env.BCRYPT_ROUNDS, 10) || 10
+    const salt = await bcrypt.genSalt(rounds)
     
     // Hash password dengan salt
     this.password = await bcrypt.hash(this.password, salt)
