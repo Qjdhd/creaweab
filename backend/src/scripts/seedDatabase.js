@@ -198,11 +198,28 @@ async function seedDatabase() {
     
     for (const userData of seedUsers) {
       try {
-        const user = await User.create(userData)
+        // Sanitize user data - hanya pass field yang defined di schema
+        const sanitizedData = {
+          name: userData.name,
+          email: userData.email,
+          password: userData.password,
+          avatar: userData.avatar || '👤',
+          bio: userData.bio || '',
+          isVerified: userData.isVerified || false,
+          isAdmin: userData.isAdmin || false,
+          isActive: true
+        }
+        
+        console.log(`   Creating user: ${sanitizedData.email}`)
+        const user = await User.create(sanitizedData)
         createdUsers.push(user)
         console.log(`   ✅ Created user: ${user.email}`)
       } catch (userError) {
-        console.error(`   ❌ Error creating user ${userData.email}:`, userError.message)
+        console.error(`   ❌ Error creating user ${userData.email}:`)
+        console.error(`      Message: ${userError.message}`)
+        if (userError.errors) {
+          console.error(`      Validation errors:`, userError.errors)
+        }
         throw userError
       }
     }
@@ -228,7 +245,11 @@ async function seedDatabase() {
         createdVideos.push(video)
         console.log(`   ✅ Created video: "${video.title}"`)
       } catch (videoError) {
-        console.error(`   ❌ Error creating video ${seedVideos[i].title}:`, videoError.message)
+        console.error(`   ❌ Error creating video ${seedVideos[i].title}:`)
+        console.error(`      Message: ${videoError.message}`)
+        if (videoError.errors) {
+          console.error(`      Validation errors:`, videoError.errors)
+        }
         throw videoError
       }
     }
